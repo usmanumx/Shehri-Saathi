@@ -19,13 +19,23 @@ export const SYSTEM_PROMPT = [
   `اگر دی گئی معلومات میں جواب موجود نہ ہو تو بالکل یہ جملہ لکھیں: "${REFUSAL_URDU}"`,
 ].join("\n");
 
+// The .env.example template value — treated as "no key" so the app shows a
+// clean no-key state after `cp .env.example .env.local` and before a real
+// key is pasted (instead of a mic that looks enabled but 401s).
+const PLACEHOLDER_KEY = "your_groq_api_key_here";
+
+function resolveKey(): string {
+  const k = process.env.GROQ_API_KEY?.trim() ?? "";
+  return k === PLACEHOLDER_KEY ? "" : k;
+}
+
 export function hasGroqKey(): boolean {
-  return Boolean(process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.trim());
+  return Boolean(resolveKey());
 }
 
 /** Lazily build a Groq client; throws a typed error if the key is missing. */
 export function getGroqClient(): Groq {
-  const apiKey = process.env.GROQ_API_KEY?.trim();
+  const apiKey = resolveKey();
   if (!apiKey) {
     throw new MissingKeyError();
   }

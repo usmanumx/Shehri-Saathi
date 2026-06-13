@@ -143,7 +143,8 @@ function looksUrdu(text) {
 }
 
 async function translateToUrdu(text) {
-  const apiKey = process.env.GROQ_API_KEY?.trim();
+  let apiKey = process.env.GROQ_API_KEY?.trim();
+  if (apiKey === "your_groq_api_key_here") apiKey = ""; // .env.example placeholder
   if (!apiKey) {
     // No key: signal failure so the caller can preserve the curated cache
     // instead of clobbering it with untranslated English.
