@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* NOTE: do NOT redefine --font-urdu / --font-latin in :root here. next/font
+   injects those variables (with metric-matched self-hosted fallbacks) onto
+   <html>; a :root redefinition has equal specificity and, coming later in the
+   bundle, would override the real self-hosted face. We only consume the
+   variables below, with a plain fallback chain for safety. */
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-latin), system-ui, sans-serif;
+}
+
+/* Urdu content uses the Nastaliq face and a generous line-height so the
+   script's tall ascenders/descenders don't collide. */
+.font-urdu,
+[lang="ur"] {
+  font-family: var(--font-urdu), "Noto Nastaliq Urdu", serif;
+  line-height: 2.1;
+}
+
+/* Streaming answers should preserve the model's line breaks. */
+.answer-body {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Subtle pulse for the recording mic. */
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(31, 122, 61, 0.5); }
+  70% { box-shadow: 0 0 0 14px rgba(31, 122, 61, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(31, 122, 61, 0); }
+}
+.recording {
+  animation: pulse-ring 1.4s infinite;
+}
+
+/* Thin scrollbar for the chat column. */
+.scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5c0 transparent;
+}
