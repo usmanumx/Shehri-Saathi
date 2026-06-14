@@ -84,8 +84,11 @@ export async function POST(req: NextRequest) {
   try {
     const completion = await client.chat.completions.create({
       model: GROQ_LLM_MODEL,
-      temperature: 0.2,
+      temperature: 0.3,
       max_tokens: 700,
+      // Discourage the model from looping/echoing overlapping context chunks.
+      frequency_penalty: 0.5,
+      presence_penalty: 0.3,
       stream: true,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
