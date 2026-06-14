@@ -3,8 +3,10 @@ import { retrieve, buildContextBlock } from "@/lib/retrieval";
 import {
   getGroqClient,
   GROQ_LLM_MODEL,
-  SYSTEM_PROMPT,
+  buildSystemPrompt,
   REFUSAL_URDU,
+  REFUSAL_OTHER,
+  isUrduScript,
   MissingKeyError,
 } from "@/lib/groq";
 import type { Citation } from "@/lib/types";
@@ -59,15 +61,9 @@ export async function POST(req: NextRequest) {
     return streamText("براہِ کرم اپنا سوال لکھیں۔ (Please enter a question.)", [], 400);
   }
 
-  // 1) Local retrieval (no API key needed) + refusal gate.
-  const { chunks, citations, outOfScope } = retrieve(query);
+  const urduScript = isUrduScript(query);
 
-  if (outOfScope) {
-    // Out-of-scope: refuse deterministically, no LLM call, no citations.
-    return streamText(REFUSAL_URDU, []);
-  }
-
-  // 2) Stream the grounded answer from Groq.
+  // Get the Groq client early — needed for query translation + LLM.
   let client;
   try {
     client = getGroqClient();
@@ -78,9 +74,42 @@ export async function POST(req: NextRequest) {
     return streamText(ERR_GENERIC, [], 500);
   }
 
+  // 1) Non-Urdu-script queries (Roman Urdu / English) are translated to Urdu
+  //    before BM25 retrieval because the knowledge base is in Urdu script.
+  let retrievalQuery = query;
+  if (!urduScript) {
+    try {
+      const tr = await client.chat.completions.create({
+        model: GROQ_LLM_MODEL,
+        temperature: 0,
+        max_tokens: 150,
+        messages: [
+          {
+            role: "system",
+            content:
+              "Translate the civic question to Urdu script. Output ONLY the Urdu translation — no explanation, no extra text.",
+          },
+          { role: "user", content: query },
+        ],
+      });
+      retrievalQuery = tr.choices?.[0]?.message?.content?.trim() || query;
+    } catch {
+      // Translation failed — fall back to original query (may match less well).
+    }
+  }
+
+  // 2) Local BM25 retrieval + refusal gate (uses Urdu query for best matching).
+  const { chunks, citations, outOfScope } = retrieve(retrievalQuery);
+
+  if (outOfScope) {
+    // Refuse in the language the user wrote in — no LLM call needed.
+    return streamText(urduScript ? REFUSAL_URDU : REFUSAL_OTHER, []);
+  }
+
   const contextBlock = buildContextBlock(chunks);
   const userMessage = `سوال: ${query}\n\nتصدیق شدہ معلومات:\n${contextBlock}`;
 
+  // 3) Stream the grounded answer from Groq.
   try {
     const completion = await client.chat.completions.create({
       model: GROQ_LLM_MODEL,
@@ -91,7 +120,7 @@ export async function POST(req: NextRequest) {
       presence_penalty: 0.3,
       stream: true,
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: buildSystemPrompt(urduScript) },
         { role: "user", content: userMessage },
       ],
     });

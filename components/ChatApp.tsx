@@ -13,8 +13,8 @@ interface ChatMessage {
 
 const SAMPLE_QUESTIONS = [
   "میں اپنا ووٹ کیسے چیک کروں؟",
-  "شناختی کارڈ بنوانے کے لیے کہاں جاؤں؟",
-  "سرکاری شکایت کیسے درج کروں؟",
+  "How do I check my voter registration?",
+  "CNIC banwane ke liye kahan jana hoga?",
 ];
 
 function decodeCitations(b64: string | null): Citation[] {
@@ -34,6 +34,7 @@ export default function ChatApp({ voiceEnabled }: { voiceEnabled: boolean }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [canSpeak, setCanSpeak] = useState(false);
+  const [speakingIdx, setSpeakingIdx] = useState<number | null>(null);
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
@@ -56,21 +57,61 @@ export default function ChatApp({ voiceEnabled }: { voiceEnabled: boolean }) {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
 
-  function speak(text: string) {
-    if (!canSpeak) return;
+  function stopSpeaking() {
     try {
       window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = "ur-PK";
+    } catch {
+      /* ignore */
+    }
+    setSpeakingIdx(null);
+  }
+
+  /** Split text into short clauses so Chromium TTS doesn't truncate long answers. */
+  function splitForSpeech(text: string): string[] {
+    return text
+      // Drop the trailing citation line ("حوالہ: …" / "Source: …") — not worth reading aloud.
+      .replace(/(^|\n)\s*(حوالہ|ماخذ|source)\s*[:：].*$/gim, "")
+      // Break on Urdu/English sentence punctuation and newlines.
+      .split(/(?<=[۔؟!?.])\s+|\n+/)
+      .map((s) => s.trim())
+      .filter((s) => s.replace(/[^\p{L}\p{N}]/gu, "").length > 0)
+      // Further cap very long clauses (Chromium cuts off around ~200 chars).
+      .flatMap((s) => (s.length <= 180 ? [s] : (s.match(/.{1,180}(\s|$)/g) ?? [s])));
+  }
+
+  function speak(text: string, idx: number) {
+    if (!canSpeak) return;
+    // Toggle off if this message is already playing.
+    if (speakingIdx === idx) {
+      stopSpeaking();
+      return;
+    }
+    try {
+      window.speechSynthesis.cancel();
       const voices = voicesRef.current.length
         ? voicesRef.current
         : window.speechSynthesis.getVoices();
       const urVoice = voices.find((v) => v.lang?.toLowerCase().startsWith("ur"));
-      if (urVoice) utter.voice = urVoice;
-      utter.rate = 0.95;
-      window.speechSynthesis.speak(utter);
+      const isUrdu = /[؀-ۿ]/.test(text);
+
+      const parts = splitForSpeech(text);
+      if (parts.length === 0) return;
+      setSpeakingIdx(idx);
+
+      parts.forEach((part, i) => {
+        const utter = new SpeechSynthesisUtterance(part);
+        utter.lang = isUrdu ? "ur-PK" : "en-US";
+        if (isUrdu && urVoice) utter.voice = urVoice;
+        utter.rate = 0.92;
+        // Clear the speaking state only when the final clause finishes.
+        if (i === parts.length - 1) {
+          utter.onend = () => setSpeakingIdx(null);
+          utter.onerror = () => setSpeakingIdx(null);
+        }
+        window.speechSynthesis.speak(utter);
+      });
     } catch {
-      /* speech is best-effort; ignore failures */
+      setSpeakingIdx(null);
     }
   }
 
@@ -142,10 +183,34 @@ export default function ChatApp({ voiceEnabled }: { voiceEnabled: boolean }) {
     }
   }
 
+  function resetChat() {
+    stopSpeaking();
+    setMessages([]);
+    setInput("");
+    setError(null);
+  }
+
   const showWelcome = messages.length === 0;
 
   return (
     <section className="mt-5 flex flex-1 flex-col">
+      {/* Conversation header — new-chat reset appears once a conversation starts */}
+      {!showWelcome && (
+        <div className="mb-2 flex items-center justify-between px-1">
+          <span className="text-xs text-brand-navy/50">
+            {Math.ceil(messages.length / 2)} سوال
+          </span>
+          <button
+            type="button"
+            onClick={resetChat}
+            disabled={loading}
+            className="inline-flex items-center gap-1 rounded-full border border-brand-green/30 bg-white px-3 py-1 text-xs font-medium text-brand-greenDark transition hover:bg-brand-green/10 disabled:opacity-50"
+          >
+            ↺ نئی گفتگو (New chat)
+          </button>
+        </div>
+      )}
+
       {/* Conversation */}
       <div
         ref={scrollRef}
@@ -177,6 +242,7 @@ export default function ChatApp({ voiceEnabled }: { voiceEnabled: boolean }) {
         {messages.map((m, i) => (
           <div
             key={i}
+            dir={/[؀-ۿ]/.test(m.content) ? "rtl" : "ltr"}
             className={m.role === "user" ? "flex justify-start" : "flex justify-end"}
           >
             <div
@@ -187,7 +253,10 @@ export default function ChatApp({ voiceEnabled }: { voiceEnabled: boolean }) {
                   : "border border-brand-green/20 bg-white text-brand-navy shadow-sm",
               ].join(" ")}
             >
-              <p className="answer-body font-urdu text-[15px]">
+              <p
+                className="answer-body font-urdu text-[15px]"
+                dir={/[؀-ۿ]/.test(m.content) || !m.content ? "rtl" : "ltr"}
+              >
                 {m.content || (loading ? "" : "—")}
               </p>
 
@@ -206,10 +275,12 @@ export default function ChatApp({ voiceEnabled }: { voiceEnabled: boolean }) {
                   )}
                   {canSpeak && (
                     <button
-                      onClick={() => speak(m.content)}
+                      onClick={() => speak(m.content, i)}
                       className="mt-2 inline-flex items-center gap-1 text-[11px] text-brand-green hover:text-brand-greenDark"
                     >
-                      🔊 جواب سنیں (Play answer)
+                      {speakingIdx === i
+                        ? "⏹ روکیں (Stop)"
+                        : "🔊 جواب سنیں (Play answer)"}
                     </button>
                   )}
                 </>
@@ -238,8 +309,8 @@ export default function ChatApp({ voiceEnabled }: { voiceEnabled: boolean }) {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={onKeyDown}
           rows={1}
-          dir="rtl"
-          placeholder="اپنا سوال یہاں لکھیں…"
+          dir={/[؀-ۿ]/.test(input) || input === "" ? "rtl" : "ltr"}
+          placeholder="اردو، Roman Urdu، یا English میں سوال لکھیں…"
           className="max-h-32 min-h-[44px] flex-1 resize-none bg-transparent px-2 py-2 font-urdu text-[15px] text-brand-navy outline-none placeholder:text-brand-navy/40"
         />
         <button

@@ -58,9 +58,18 @@ export async function POST(req: NextRequest) {
       model: GROQ_STT_MODEL,
       language: "ur",
       temperature: 0,
+      // Bias the decoder toward this app's civic vocabulary so it stops
+      // mis-hearing domain words (vote/ECP/CNIC/NADRA/complaint/portal).
+      // Whisper uses this as a context hint, sharply reducing wrong guesses.
+      prompt:
+        "شہری معلومات: ووٹ کا اندراج، ووٹ کی تصدیق، الیکشن کمیشن، 8300، شناختی کارڈ، نادرا، CNIC، سرکاری شکایت، پاکستان سٹیزن پورٹل۔",
     });
 
-    return NextResponse.json({ text: (transcription.text ?? "").trim() });
+    const text = (transcription.text ?? "").trim();
+    // Whisper occasionally emits a bare hallucination on silence/noise
+    // (e.g. a stray "۔" or a repeated token). Treat trivial output as empty.
+    const meaningful = text.replace(/[^\p{L}\p{N}]/gu, "").length >= 2;
+    return NextResponse.json({ text: meaningful ? text : "" });
   } catch (err: unknown) {
     console.error("[transcribe] groq error:", err);
     const status = (err as { status?: number })?.status;

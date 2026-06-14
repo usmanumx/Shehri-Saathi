@@ -116,8 +116,8 @@ function getIndex(): BM25Index {
   return cachedIndex;
 }
 
-/** Number of top chunks to feed the LLM — keep small for free-tier budget. */
-const TOP_K = 4;
+/** Number of top chunks to feed the LLM — a touch more context improves answer relevance. */
+const TOP_K = 5;
 
 /**
  * Refusal gate — two conditions must BOTH hold for a query to be in-scope:
