@@ -130,6 +130,76 @@ export const SERVICES: ServiceCategory[] = [
       "نادرا سے ب-فارم کیسے بنتا ہے؟",
     ],
   },
+  {
+    id: "vehicle-registration",
+    icon: "🚙",
+    titleUr: "گاڑی کی رجسٹریشن",
+    titleEn: "Vehicle registration",
+    questions: [
+      "نئی گاڑی کی رجسٹریشن کیسے کرواؤں؟",
+      "گاڑی رجسٹریشن کی فیس کتنی ہے؟",
+    ],
+  },
+  {
+    id: "death-certificate",
+    icon: "🕊️",
+    titleUr: "موت کا سرٹیفکیٹ",
+    titleEn: "Death certificate",
+    questions: [
+      "موت کا سرٹیفکیٹ کیسے بنواؤں؟",
+      "ڈیتھ سرٹیفکیٹ کے لیے کیا کاغذات چاہئیں؟",
+    ],
+  },
+  {
+    id: "marriage-registration",
+    icon: "💍",
+    titleUr: "نکاح رجسٹریشن",
+    titleEn: "Marriage registration",
+    questions: [
+      "نکاح رجسٹریشن سرٹیفکیٹ کیسے بنواؤں؟",
+      "شادی کا سرٹیفکیٹ کیسے بنتا ہے؟",
+    ],
+  },
+  {
+    id: "property-mutation",
+    icon: "🏠",
+    titleUr: "جائیداد کا انتقال",
+    titleEn: "Property mutation",
+    questions: [
+      "جائیداد کا انتقال کیسے کرواؤں؟",
+      "انتقال کے لیے کیا کاغذات چاہئیں؟",
+    ],
+  },
+  {
+    id: "e-stamping",
+    icon: "🧾",
+    titleUr: "ای-اسٹامپنگ",
+    titleEn: "E-stamping",
+    questions: [
+      "اسٹامپ ڈیوٹی آن لائن کیسے ادا کریں؟",
+      "ای-اسٹامپ چلان کیسے بنتا ہے؟",
+    ],
+  },
+  {
+    id: "arms-license",
+    icon: "🛡️",
+    titleUr: "اسلحہ لائسنس",
+    titleEn: "Arms licence",
+    questions: [
+      "اسلحہ لائسنس کیسے بنواؤں؟",
+      "اسلحہ لائسنس کی فیس کتنی ہے؟",
+    ],
+  },
+  {
+    id: "character-certificate",
+    icon: "📋",
+    titleUr: "کریکٹر سرٹیفکیٹ",
+    titleEn: "Character certificate",
+    questions: [
+      "پولیس کریکٹر سرٹیفکیٹ کیسے بنواؤں؟",
+      "کریکٹر سرٹیفکیٹ کے لیے کیا کاغذات چاہئیں؟",
+    ],
+  },
 ];
 
 export default function ServicesMenu({

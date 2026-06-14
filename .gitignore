@@ -33,3 +33,8 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# whatsapp-bot (isolated module): never commit deps or the paired session secrets
+whatsapp-bot/node_modules
+whatsapp-bot/auth
+whatsapp-bot/package-lock.json

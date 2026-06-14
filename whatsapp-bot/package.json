@@ -1,0 +1,15 @@
+{
+  "name": "shehrisaathi-whatsapp-bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Isolated WhatsApp (Baileys) entry point for ShehriSaathi. Reuses the existing /api/chat + /api/transcribe over HTTP — never imports or affects the web app.",
+  "scripts": {
+    "start": "node bot.mjs"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.0",
+    "pino": "^9.5.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
