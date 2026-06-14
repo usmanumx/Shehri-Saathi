@@ -1,7 +1,10 @@
 import Groq from "groq-sdk";
 
 export const GROQ_LLM_MODEL = "llama-3.3-70b-versatile";
-export const GROQ_STT_MODEL = "whisper-large-v3-turbo";
+// Full whisper-large-v3 (not the "-turbo" variant): markedly more accurate on
+// Urdu / accented speech. Turbo is faster but hallucinates random-language
+// gibberish on non-English audio, which is unacceptable for voice input here.
+export const GROQ_STT_MODEL = "whisper-large-v3";
 
 /** The exact refusal sentence required by the spec. */
 export const REFUSAL_URDU =

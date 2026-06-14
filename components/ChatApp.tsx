@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import MicButton from "./MicButton";
 import Citations from "./Citations";
+import ServicesMenu from "./ServicesMenu";
 import type { Citation } from "@/lib/types";
 
 interface ChatMessage {
@@ -10,12 +11,6 @@ interface ChatMessage {
   content: string;
   citations?: Citation[];
 }
-
-const SAMPLE_QUESTIONS = [
-  "میں اپنا ووٹ کیسے چیک کروں؟",
-  "How do I check my voter registration?",
-  "CNIC banwane ke liye kahan jana hoga?",
-];
 
 function decodeCitations(b64: string | null): Citation[] {
   if (!b64) return [];
@@ -35,6 +30,7 @@ export default function ChatApp({ voiceEnabled }: { voiceEnabled: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [canSpeak, setCanSpeak] = useState(false);
   const [speakingIdx, setSpeakingIdx] = useState<number | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
@@ -190,52 +186,70 @@ export default function ChatApp({ voiceEnabled }: { voiceEnabled: boolean }) {
     setError(null);
   }
 
+  function pickQuestion(q: string) {
+    setMenuOpen(false);
+    void ask(q);
+  }
+
   const showWelcome = messages.length === 0;
 
   return (
     <section className="mt-5 flex flex-1 flex-col">
-      {/* Conversation header — new-chat reset appears once a conversation starts */}
-      {!showWelcome && (
-        <div className="mb-2 flex items-center justify-between px-1">
-          <span className="text-xs text-brand-navy/50">
-            {Math.ceil(messages.length / 2)} سوال
-          </span>
+      {/* Toolbar — always-available services/help menu + new-chat reset */}
+      <div className="mb-2 flex items-center justify-between px-1">
+        <button
+          type="button"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-expanded={menuOpen}
+          className="inline-flex items-center gap-1.5 rounded-full border border-brand-green/30 bg-white px-3 py-1.5 text-xs font-semibold text-brand-greenDark shadow-sm transition hover:bg-brand-green/10"
+        >
+          <span aria-hidden>{menuOpen ? "✕" : "☰"}</span>
+          خدمات و مدد
+          <span className="text-brand-navy/40">(Services &amp; help)</span>
+        </button>
+        {!showWelcome && (
           <button
             type="button"
             onClick={resetChat}
             disabled={loading}
-            className="inline-flex items-center gap-1 rounded-full border border-brand-green/30 bg-white px-3 py-1 text-xs font-medium text-brand-greenDark transition hover:bg-brand-green/10 disabled:opacity-50"
+            className="inline-flex items-center gap-1 rounded-full border border-brand-green/30 bg-white px-3 py-1.5 text-xs font-medium text-brand-greenDark transition hover:bg-brand-green/10 disabled:opacity-50"
           >
             ↺ نئی گفتگو (New chat)
           </button>
+        )}
+      </div>
+
+      {/* Services dropdown — opened from the toolbar, useful mid-conversation */}
+      {menuOpen && !showWelcome && (
+        <div className="card mb-3 rounded-2xl p-3.5">
+          <p className="mb-2.5 text-center font-urdu text-sm font-semibold text-brand-navy">
+            میں آپ کی کن چیزوں میں مدد کر سکتا ہوں؟
+          </p>
+          <ServicesMenu onPick={pickQuestion} />
         </div>
       )}
 
       {/* Conversation */}
       <div
         ref={scrollRef}
-        className="scroll-area flex-1 space-y-4 overflow-y-auto rounded-2xl bg-white/60 p-4 shadow-inner"
+        className="scroll-area card flex-1 space-y-4 overflow-y-auto rounded-2xl p-4"
         style={{ minHeight: "42vh", maxHeight: "55vh" }}
       >
         {showWelcome && (
-          <div className="flex h-full flex-col items-center justify-center gap-4 py-6 text-center">
-            <p className="font-urdu text-lg text-brand-navy/80">
-              اپنا سوال آواز میں یا لکھ کر پوچھیں
-            </p>
-            <p className="-mt-2 text-xs text-brand-navy/50">
-              Ask a civic question by voice or text — answers come only from official documents.
-            </p>
-            <div className="flex flex-col gap-2">
-              {SAMPLE_QUESTIONS.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => ask(s)}
-                  className="rounded-full border border-brand-green/30 bg-white px-4 py-2 font-urdu text-sm text-brand-greenDark transition hover:bg-brand-green/10"
-                >
-                  {s}
-                </button>
-              ))}
+          <div className="flex h-full flex-col gap-4 py-2">
+            <div className="text-center">
+              <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-green/10 text-3xl">
+                💬
+              </span>
+              <p className="mt-3 font-urdu text-lg text-brand-navy/90">
+                میں آپ کی کن چیزوں میں مدد کر سکتا ہوں؟
+              </p>
+              <p className="mt-1 text-xs text-brand-navy/50">
+                Pick a topic below to start — or ask anything by voice or text. Answers come
+                only from official documents.
+              </p>
             </div>
+            <ServicesMenu onPick={pickQuestion} />
           </div>
         )}
 
@@ -247,10 +261,10 @@ export default function ChatApp({ voiceEnabled }: { voiceEnabled: boolean }) {
           >
             <div
               className={[
-                "max-w-[88%] rounded-2xl px-4 py-3",
+                "bubble-in max-w-[88%] px-4 py-3 shadow-sm",
                 m.role === "user"
-                  ? "bg-brand-navy text-white"
-                  : "border border-brand-green/20 bg-white text-brand-navy shadow-sm",
+                  ? "rounded-2xl rounded-bl-md bg-gradient-to-br from-brand-navy to-[#0f274a] text-white"
+                  : "rounded-2xl rounded-br-md border border-brand-green/20 bg-white text-brand-navy",
               ].join(" ")}
             >
               <p
@@ -297,7 +311,7 @@ export default function ChatApp({ voiceEnabled }: { voiceEnabled: boolean }) {
       )}
 
       {/* Composer */}
-      <div className="mt-3 flex items-end gap-2 rounded-2xl border border-brand-green/30 bg-white p-2 shadow-sm">
+      <div className="mt-3 flex items-end gap-2 rounded-2xl border border-brand-green/25 bg-white p-2 shadow-md focus-within:border-brand-green/50 focus-within:ring-2 focus-within:ring-brand-green/15">
         <MicButton
           enabled={voiceEnabled}
           disabled={loading}
@@ -317,7 +331,7 @@ export default function ChatApp({ voiceEnabled }: { voiceEnabled: boolean }) {
           type="button"
           onClick={() => ask(input)}
           disabled={loading || !input.trim()}
-          className="flex h-11 shrink-0 items-center gap-1 rounded-full bg-brand-green px-4 text-sm font-semibold text-white transition hover:bg-brand-greenDark disabled:cursor-not-allowed disabled:bg-brand-green/40"
+          className="btn-brand flex h-11 shrink-0 items-center gap-1 rounded-full px-5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
         >
           {loading ? "…" : "بھیجیں"}
         </button>
