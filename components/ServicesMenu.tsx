@@ -60,6 +60,76 @@ export const SERVICES: ServiceCategory[] = [
       "پاکستان سٹیزن پورٹل کیا ہے؟",
     ],
   },
+  {
+    id: "passport",
+    icon: "🛂",
+    titleUr: "پاسپورٹ (MRP)",
+    titleEn: "Passport",
+    questions: [
+      "پاسپورٹ کے لیے کون سے کاغذات چاہئیں؟",
+      "پاسپورٹ کی فیس اور وقت کتنا ہے؟",
+    ],
+  },
+  {
+    id: "vehicle-transfer",
+    icon: "🚗",
+    titleUr: "گاڑی کی منتقلی",
+    titleEn: "Vehicle transfer",
+    questions: [
+      "گاڑی کی منتقلی کیسے کرواؤں؟",
+      "گاڑی کی منتقلی کے لیے کیا کاغذات چاہئیں؟",
+    ],
+  },
+  {
+    id: "driving-license",
+    icon: "🚦",
+    titleUr: "ڈرائیونگ لائسنس",
+    titleEn: "Driving licence",
+    questions: [
+      "ڈرائیونگ لائسنس کیسے بنواؤں؟",
+      "لرنر لائسنس کیسے ملے گا؟",
+    ],
+  },
+  {
+    id: "ntn-income-tax",
+    icon: "🧾",
+    titleUr: "NTN / انکم ٹیکس",
+    titleEn: "NTN / income tax",
+    questions: [
+      "NTN رجسٹریشن کیسے کریں؟",
+      "ٹیکس رجسٹریشن کے لیے کیا چاہیے؟",
+    ],
+  },
+  {
+    id: "company-registration",
+    icon: "🏢",
+    titleUr: "کمپنی رجسٹریشن",
+    titleEn: "Company registration",
+    questions: [
+      "کمپنی رجسٹریشن کیسے کریں؟",
+      "کاروبار رجسٹریشن کا طریقہ کیا ہے؟",
+    ],
+  },
+  {
+    id: "domicile",
+    icon: "📜",
+    titleUr: "ڈومیسائل سرٹیفکیٹ",
+    titleEn: "Domicile",
+    questions: [
+      "ڈومیسائل سرٹیفکیٹ کیسے بنواؤں؟",
+      "ڈومیسائل کے لیے کیا کاغذات چاہئیں؟",
+    ],
+  },
+  {
+    id: "birth-certificate",
+    icon: "👶",
+    titleUr: "پیدائش کا سرٹیفکیٹ",
+    titleEn: "Birth certificate",
+    questions: [
+      "بچے کا پیدائشی سرٹیفکیٹ کیسے بنواؤں؟",
+      "نادرا سے ب-فارم کیسے بنتا ہے؟",
+    ],
+  },
 ];
 
 export default function ServicesMenu({

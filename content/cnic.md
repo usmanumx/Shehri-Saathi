@@ -4,9 +4,9 @@ source_name: نادرا (NADRA)
 source_url: https://www.nadra.gov.pk/identityDocument/cnic
 fetched_at: 2026-06-10T08:00:00.000Z
 procedure:
-  fee: "نارمل: Rs 750 · ارجنٹ: Rs 1500 · ایگزیکٹو: Rs 2500"
-  timeline: "نارمل: ~15–30 دن · ارجنٹ: ~7–10 دن · ایگزیکٹو: ~1–3 دن"
-  office: "نادرا رجسٹریشن سینٹر (NRC) یا Pak Identity آن لائن/ایپ"
+  fee: "کیٹیگری کے مطابق: نارمل، ارجنٹ، ایگزیکٹو (تازہ سرکاری فیس نادرا کی فیس لسٹ سے معلوم کریں)"
+  timeline: "کیٹیگری کے مطابق مختلف: نارمل سب سے زیادہ دن، ایگزیکٹو سب سے تیز"
+  office: "نادرا رجسٹریشن سینٹر (NRC) یا Pak Identity ایپ/ویب (id.nadra.gov.pk)"
   province: "تمام صوبے (وفاقی)"
   documents:
     - "والدین کا شناختی کارڈ یا خاندانی ریکارڈ (ب-فارم)"
