@@ -1,9 +1,33 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import type { Chunk, DocMeta } from "./types";
+import type { Chunk, DocMeta, ProcedureInfo } from "./types";
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
+
+/**
+ * Defensively map the optional `procedure:` frontmatter block into a typed
+ * ProcedureInfo. Returns undefined when absent so docs without it are unchanged.
+ */
+function parseProcedure(raw: unknown): ProcedureInfo | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const p = raw as Record<string, unknown>;
+  const str = (v: unknown) =>
+    typeof v === "string" && v.trim() ? v.trim() : undefined;
+  const docs = Array.isArray(p.documents)
+    ? p.documents.map((d) => String(d).trim()).filter(Boolean)
+    : undefined;
+
+  const info: ProcedureInfo = {
+    fee: str(p.fee),
+    timeline: str(p.timeline),
+    office: str(p.office),
+    province: str(p.province),
+    documents: docs && docs.length ? docs : undefined,
+  };
+  // Only return when at least one field is present.
+  return Object.values(info).some(Boolean) ? info : undefined;
+}
 
 /** Approx. max characters per chunk. Small docs => keep chunks readable. */
 const MAX_CHUNK_CHARS = 600;
@@ -59,6 +83,7 @@ export function loadChunks(): Chunk[] {
         source_name: (data.source_name as string) || "Unknown source",
         source_url: (data.source_url as string) || "",
         fetched_at: (data.fetched_at as string) || "",
+        procedure: parseProcedure(data.procedure),
       };
 
       const pieces = chunkBody(content);

@@ -1,11 +1,26 @@
 // Shared types for ShehriSaathi
 
+/**
+ * Optional structured "official procedure" facts for a document — fees,
+ * timeline, required documents, office, province. Rendered as a fee/checklist
+ * card so citizens see the OFFICIAL cost and avoid agent overcharging.
+ * Every field is optional; docs without a `procedure:` block render normally.
+ */
+export interface ProcedureInfo {
+  fee?: string;
+  timeline?: string;
+  office?: string;
+  province?: string;
+  documents?: string[];
+}
+
 export interface DocMeta {
   id: string;
   title: string;
   source_name: string;
   source_url: string;
   fetched_at: string;
+  procedure?: ProcedureInfo;
 }
 
 export interface Chunk {
@@ -27,6 +42,7 @@ export interface Citation {
   source_name: string;
   source_url: string;
   fetched_at: string;
+  procedure?: ProcedureInfo;
 }
 
 export interface RetrievalResult {

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import MicButton from "./MicButton";
 import Citations from "./Citations";
+import ProcedureCard from "./ProcedureCard";
 import ServicesMenu from "./ServicesMenu";
 import type { Citation } from "@/lib/types";
 
@@ -284,6 +285,10 @@ export default function ChatApp({ voiceEnabled }: { voiceEnabled: boolean }) {
 
               {m.role === "assistant" && m.content && (
                 <>
+                  {(() => {
+                    const withProc = m.citations?.find((c) => c.procedure);
+                    return withProc ? <ProcedureCard citation={withProc} /> : null;
+                  })()}
                   {m.citations && m.citations.length > 0 && (
                     <Citations citations={m.citations} />
                   )}

@@ -3,6 +3,14 @@ title: سرکاری شکایت کیسے درج کروائیں (پاکستان س
 source_name: پاکستان سٹیزن پورٹل (Pakistan Citizen Portal)
 source_url: https://citizenportal.gov.pk/
 fetched_at: 2026-06-10T08:00:00.000Z
+procedure:
+  fee: "مفت (کوئی فیس نہیں)"
+  timeline: "شکایت پر عموماً متعین مدت میں کارروائی"
+  office: "Pakistan Citizen Portal موبائل ایپ (Google Play / App Store)"
+  province: "تمام صوبے (وفاقی)"
+  documents:
+    - "قومی شناختی کارڈ (CNIC) سے رجسٹریشن"
+    - "فعال موبائل نمبر اور ای میل"
 ---
 
 # سرکاری شکایت کیسے درج کروائیں (Pakistan Citizen Portal)

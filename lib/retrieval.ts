@@ -163,6 +163,7 @@ export function retrieve(query: string): RetrievalResult {
       source_name: chunk.meta.source_name,
       source_url: chunk.meta.source_url,
       fetched_at: chunk.meta.fetched_at,
+      procedure: chunk.meta.procedure,
     });
   }
 

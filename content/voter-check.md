@@ -3,6 +3,13 @@ title: اپنے ووٹ کے اندراج کی تصدیق (SMS 8300)
 source_name: الیکشن کمیشن آف پاکستان (ECP)
 source_url: https://ecp.gov.pk/check-your-registration
 fetched_at: 2026-06-10T08:00:00.000Z
+procedure:
+  fee: "مفت (صرف SMS کا معمولی چارج)"
+  timeline: "فوری — چند منٹ میں جوابی پیغام"
+  office: "گھر بیٹھے موبائل SMS کے ذریعے"
+  province: "تمام صوبے (وفاقی)"
+  documents:
+    - "قومی شناختی کارڈ (CNIC) نمبر بغیر ڈیش کے"
 ---
 
 # اپنے ووٹ کی تصدیق کیسے کریں (Check Your Registration)
