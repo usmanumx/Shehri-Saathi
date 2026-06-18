@@ -88,8 +88,24 @@ export default function ChatApp({ voiceEnabled }: { voiceEnabled: boolean }) {
       const voices = voicesRef.current.length
         ? voicesRef.current
         : window.speechSynthesis.getVoices();
-      const urVoice = voices.find((v) => v.lang?.toLowerCase().startsWith("ur"));
       const isUrdu = /[؀-ۿ]/.test(text);
+
+      // Find best Urdu voice with fallback
+      let targetVoice: SpeechSynthesisVoice | undefined;
+      if (isUrdu) {
+        // Try to find Urdu voice first
+        targetVoice = voices.find((v) => v.lang?.toLowerCase().includes("ur"));
+        // Fallback to Hindustani if Urdu not available
+        if (!targetVoice) {
+          targetVoice = voices.find((v) => v.lang?.toLowerCase().includes("hi"));
+        }
+        // Fallback to English if nothing works
+        if (!targetVoice) {
+          targetVoice = voices.find((v) => v.lang?.toLowerCase().includes("en"));
+        }
+      } else {
+        targetVoice = voices.find((v) => v.lang?.toLowerCase().includes("en"));
+      }
 
       const parts = splitForSpeech(text);
       if (parts.length === 0) return;
@@ -98,8 +114,13 @@ export default function ChatApp({ voiceEnabled }: { voiceEnabled: boolean }) {
       parts.forEach((part, i) => {
         const utter = new SpeechSynthesisUtterance(part);
         utter.lang = isUrdu ? "ur-PK" : "en-US";
-        if (isUrdu && urVoice) utter.voice = urVoice;
-        utter.rate = 0.92;
+        if (targetVoice) {
+          utter.voice = targetVoice;
+        }
+        utter.rate = isUrdu ? 0.85 : 0.92; // Slower for Urdu clarity
+        utter.pitch = isUrdu ? 1.0 : 1.0;
+        utter.volume = 1.0;
+        
         // Clear the speaking state only when the final clause finishes.
         if (i === parts.length - 1) {
           utter.onend = () => setSpeakingIdx(null);
